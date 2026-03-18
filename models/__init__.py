@@ -1,5 +1,26 @@
-"""Baseline models for prediction failure classification/regression."""
+"""
+Neural network models for traffic prediction.
+"""
 
-from .baseline import train_baseline_model, get_baseline_predictions
+from .traffic_gnn import (
+    TrafficGCN,
+    TrafficGAT,
+    train_gnn,
+    evaluate_gnn,
+    train_model_full
+)
 
-__all__ = ["train_baseline_model", "get_baseline_predictions"]
+from .baselines import (
+    train_baseline_models,
+    dataset_to_tabular
+)
+
+__all__ = [
+    'TrafficGCN',
+    'TrafficGAT',
+    'train_gnn',
+    'evaluate_gnn',
+    'train_model_full',
+    'train_baseline_models',
+    'dataset_to_tabular'
+]

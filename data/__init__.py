@@ -1,5 +1,24 @@
-"""Data loading and preprocessing for traffic prediction failure analysis."""
+"""
+Data loading and preprocessing module.
+"""
 
-from .load_and_preprocess import load_abilene_like_data, preprocess_dataset, get_train_test_split
+from .load_abilene import (
+    build_abilene_graph,
+    generate_synthetic_traffic,
+    simulate_topology_failures,
+    load_data
+)
 
-__all__ = ["load_abilene_like_data", "preprocess_dataset", "get_train_test_split"]
+from .graph_dataset import (
+    NetworkTrafficDataset,
+    create_datasets
+)
+
+__all__ = [
+    'build_abilene_graph',
+    'generate_synthetic_traffic',
+    'simulate_topology_failures',
+    'load_data',
+    'NetworkTrafficDataset',
+    'create_datasets'
+]

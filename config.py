@@ -1,41 +1,47 @@
-"""
-Configuration for Explainable Root Cause Analysis pipeline.
-Aligned with: Explainable RCA for GNN Traffic Prediction Failures (Abilene/GÉANT).
-"""
+"""Global configuration for CFA project."""
 
-import os
+import numpy as np
 
-# Paths
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(PROJECT_ROOT, "data")
-OUTPUT_DIR = os.path.join(PROJECT_ROOT, "outputs")
-os.makedirs(DATA_DIR, exist_ok=True)
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-# Abilene-like network (12 nodes)
-ABILENE_NODES = 12
-# Simplified Abilene topology: node index -> list of neighbors (undirected)
-ABILENE_EDGES = [
-    (0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 0),  # ring
-    (0, 6), (1, 7), (2, 8), (3, 9), (4, 10), (5, 11),
-    (6, 7), (7, 8), (8, 9), (9, 10), (10, 11), (11, 6),
-]
-
-# Data generation (when using synthetic)
-N_TIMESTAMPS = 500   # time steps per run
-TRAIN_RATIO = 0.75
+# Random seed
 RANDOM_STATE = 42
 
-# Failure threshold: prediction is "failure" if relative error > this
-FAILURE_ERROR_THRESHOLD = 0.25  # 25% relative error
+# Network topology (Abilene: 12 nodes)
+ABILENE_NODES = 12
+ABILENE_EDGES = [
+    (0, 1), (0, 2), (1, 3), (2, 4), (3, 5),
+    (4, 5), (4, 7), (5, 6), (6, 8), (7, 9),
+    (8, 9), (8, 10), (9, 11), (10, 11)
+]
 
-# Model
-BASELINE_MODEL = "random_forest"  # "random_forest" | "logistic" | "gradient_boosting"
+# Data generation
+N_TIMESTAMPS = 2000
+TRAIN_RATIO = 0.7
+VAL_RATIO = 0.15
+TEST_RATIO = 0.15
+
+# Failure simulation
+FAILURE_ERROR_THRESHOLD = 0.2  # 20% error = failure
+FAILURE_RATES = [0.0, 0.1, 0.2, 0.3]  # Test multiple failure rates
+
+# GNN hyperparameters
+GNN_HIDDEN_DIM = 64
+GNN_NUM_LAYERS = 3
+GNN_DROPOUT = 0.3
+GNN_LEARNING_RATE = 0.001
+GNN_EPOCHS = 100
+GNN_BATCH_SIZE = 32
+
+# CFA-specific parameters
+CFA_ERROR_THRESHOLD = 0.15  # Acceptable error after intervention
+CFA_MAX_SEARCH_DEPTH = 2    # Max edges/nodes to restore simultaneously
+CFA_TOP_K_CANDIDATES = 5    # Consider top-K most important components
 
 # Explainability
-SHAP_SAMPLES = 100   # max samples for SHAP (for speed)
-LIME_SAMPLES = 500
-N_COUNTERFACTUALS = 5
+SHAP_SAMPLES = 100
+RCA_TOP_K = 3
 
-# RCA
-CAUSAL_CONFOUNDERS = None  # will be set from feature names
+# Paths
+DATA_DIR = "data/"
+RESULTS_DIR = "results/"
+FIGURES_DIR = "figures/"
+MODELS_DIR = "models_saved/"
