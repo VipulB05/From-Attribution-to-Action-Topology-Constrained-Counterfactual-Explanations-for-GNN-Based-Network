@@ -13,15 +13,19 @@ ABILENE_EDGES = [
     (8, 9), (8, 10), (9, 11), (10, 11)
 ]
 
-# Data generation
-N_TIMESTAMPS = 2000
+# Data paths
+ABILENE_DATA_PATH = 'data/raw/abilene'
+
+# Data split
 TRAIN_RATIO = 0.7
 VAL_RATIO = 0.15
 TEST_RATIO = 0.15
 
 # Failure simulation
-FAILURE_ERROR_THRESHOLD = 0.2  # 20% error = failure
-FAILURE_RATES = [0.0, 0.1, 0.2, 0.3]  # Test multiple failure rates
+FAILURE_ERROR_THRESHOLD = 0.10
+
+# Failure rates for experiments
+FAILURE_RATES = [0.1, 0.2, 0.3]
 
 # GNN hyperparameters
 GNN_HIDDEN_DIM = 64
@@ -31,10 +35,10 @@ GNN_LEARNING_RATE = 0.001
 GNN_EPOCHS = 100
 GNN_BATCH_SIZE = 32
 
-# CFA-specific parameters
-CFA_ERROR_THRESHOLD = 0.15  # Acceptable error after intervention
-CFA_MAX_SEARCH_DEPTH = 2    # Max edges/nodes to restore simultaneously
-CFA_TOP_K_CANDIDATES = 5    # Consider top-K most important components
+# CFA parameters
+CFA_ERROR_THRESHOLD = 0.15
+CFA_MAX_SEARCH_DEPTH = 2
+CFA_TOP_K_CANDIDATES = 5
 
 # Explainability
 SHAP_SAMPLES = 100
