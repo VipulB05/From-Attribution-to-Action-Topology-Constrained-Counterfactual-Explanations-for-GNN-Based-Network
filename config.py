@@ -22,17 +22,17 @@ VAL_RATIO = 0.15
 TEST_RATIO = 0.15
 
 # Failure simulation
-FAILURE_ERROR_THRESHOLD = 0.10
+FAILURE_ERROR_THRESHOLD = 0.10  # 10% error threshold
 
 # Failure rates for experiments
 FAILURE_RATES = [0.1, 0.2, 0.3]
 
 # GNN hyperparameters
-GNN_HIDDEN_DIM = 64
+GNN_HIDDEN_DIM = 128        # Increased
 GNN_NUM_LAYERS = 3
-GNN_DROPOUT = 0.3
+GNN_DROPOUT = 0.4           # Increased
 GNN_LEARNING_RATE = 0.001
-GNN_EPOCHS = 100
+GNN_EPOCHS = 150            # Increased
 GNN_BATCH_SIZE = 32
 
 # CFA parameters

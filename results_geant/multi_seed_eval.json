@@ -1,0 +1,112 @@
+[
+  {
+    "seed": 7,
+    "hit_at_1": 1.0,
+    "mrr": 1.0,
+    "grad_reduction_pct": 100.0,
+    "n_eval": 50,
+    "failed_edges": [
+      [
+        18,
+        22
+      ],
+      [
+        11,
+        20
+      ],
+      [
+        12,
+        15
+      ]
+    ],
+    "constraint_violation_rate": 0.0
+  },
+  {
+    "seed": 13,
+    "hit_at_1": 1.0,
+    "mrr": 1.0,
+    "grad_reduction_pct": 100.0,
+    "n_eval": 50,
+    "failed_edges": [
+      [
+        16,
+        21
+      ],
+      [
+        17,
+        18
+      ],
+      [
+        20,
+        22
+      ]
+    ],
+    "constraint_violation_rate": 0.0
+  },
+  {
+    "seed": 21,
+    "hit_at_1": 1.0,
+    "mrr": 1.0,
+    "grad_reduction_pct": 100.0,
+    "n_eval": 50,
+    "failed_edges": [
+      [
+        6,
+        9
+      ],
+      [
+        4,
+        5
+      ],
+      [
+        14,
+        22
+      ]
+    ],
+    "constraint_violation_rate": 0.0
+  },
+  {
+    "seed": 55,
+    "hit_at_1": 1.0,
+    "mrr": 1.0,
+    "grad_reduction_pct": 100.0,
+    "n_eval": 50,
+    "failed_edges": [
+      [
+        16,
+        17
+      ],
+      [
+        18,
+        22
+      ],
+      [
+        14,
+        15
+      ]
+    ],
+    "constraint_violation_rate": 0.0
+  },
+  {
+    "seed": 99,
+    "hit_at_1": 1.0,
+    "mrr": 1.0,
+    "grad_reduction_pct": 100.0,
+    "n_eval": 50,
+    "failed_edges": [
+      [
+        14,
+        22
+      ],
+      [
+        18,
+        22
+      ],
+      [
+        8,
+        9
+      ]
+    ],
+    "constraint_violation_rate": 0.0
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "real_traffic": {
+    "c1": 0,
+    "c2": 0,
+    "c3": 0,
+    "total": 1140
+  },
+  "note": "C2 inactive on real G\u00c9ANT due to sparse traffic (mean=0.01 Mbps). C2 activates at 2x-5x scale \u2014 constraint infrastructure is functional."
+}

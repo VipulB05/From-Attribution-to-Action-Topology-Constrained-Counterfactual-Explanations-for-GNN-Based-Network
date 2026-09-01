@@ -1,0 +1,7 @@
+{
+  "n_paired": 100,
+  "mcnemar_fix1_cf": 3.2516061726496955e-09,
+  "mcnemar_fix3_cf": 1.194587564068435e-13,
+  "mcnemar_fix1_unc": 1.0,
+  "mcnemar_fix3_unc": 1.0
+}

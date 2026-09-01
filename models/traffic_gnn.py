@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import GCNConv, GATConv, global_mean_pool
-from torch_geometric.data import DataLoader
+from torch_geometric.loader import DataLoader
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -28,7 +28,7 @@ class TrafficGCN(nn.Module):
         
         # Classification head
         self.fc1 = nn.Linear(hidden_dim, hidden_dim // 2)
-        self.fc2 = nn.Linear(hidden_dim // 2, 2)  # Binary classification
+        self.fc2 = nn.Linear(hidden_dim // 2, 2)
         
     def forward(self, data):
         x, edge_index, batch = data.x, data.edge_index, data.batch
@@ -40,7 +40,7 @@ class TrafficGCN(nn.Module):
                 x = F.relu(x)
                 x = F.dropout(x, p=self.dropout, training=self.training)
         
-        # Global pooling (graph-level)
+        # Global pooling
         x = global_mean_pool(x, batch)
         
         # Classification
@@ -60,12 +60,12 @@ class TrafficGAT(nn.Module):
         self.dropout = dropout
         
         self.convs = nn.ModuleList()
-        self.convs.append(GATConv(node_features, hidden_dim // heads, heads=heads))
+        self.convs.append(GATConv(node_features, hidden_dim // heads, heads=heads, dropout=dropout))
         
         for _ in range(num_layers - 2):
-            self.convs.append(GATConv(hidden_dim, hidden_dim // heads, heads=heads))
+            self.convs.append(GATConv(hidden_dim, hidden_dim // heads, heads=heads, dropout=dropout))
         
-        self.convs.append(GATConv(hidden_dim, hidden_dim, heads=1))
+        self.convs.append(GATConv(hidden_dim, hidden_dim, heads=1, dropout=dropout))
         
         self.fc1 = nn.Linear(hidden_dim, hidden_dim // 2)
         self.fc2 = nn.Linear(hidden_dim // 2, 2)
@@ -88,8 +88,20 @@ class TrafficGAT(nn.Module):
         return F.log_softmax(x, dim=1)
 
 
-def train_gnn(model, train_loader, optimizer, device):
-    """Train for one epoch."""
+def compute_class_weights(dataset):
+    """Compute class weights for imbalanced dataset."""
+    labels = torch.tensor([data.y.item() for data in dataset])
+    class_counts = torch.bincount(labels)
+    
+    # Inverse frequency weighting
+    total = len(labels)
+    weights = total / (len(class_counts) * class_counts.float())
+    
+    return weights
+
+
+def train_gnn(model, train_loader, optimizer, device, class_weights=None):
+    """Train for one epoch with class weighting."""
     model.train()
     total_loss = 0
     correct = 0
@@ -100,7 +112,13 @@ def train_gnn(model, train_loader, optimizer, device):
         optimizer.zero_grad()
         
         out = model(data)
-        loss = F.nll_loss(out, data.y.squeeze())
+        
+        # Use weighted loss
+        if class_weights is not None:
+            weights = class_weights.to(device)
+            loss = F.nll_loss(out, data.y.squeeze(), weight=weights)
+        else:
+            loss = F.nll_loss(out, data.y.squeeze())
         
         loss.backward()
         optimizer.step()
@@ -149,41 +167,58 @@ def evaluate_gnn(model, loader, device):
 
 def train_model_full(model, train_dataset, val_dataset, 
                     epochs=100, lr=0.001, batch_size=32, device='cpu'):
-    """Full training loop with early stopping."""
+    """Full training loop with class weighting and better early stopping."""
+    
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', 
-                                                           patience=10, factor=0.5)
+    # Compute class weights
+    class_weights = compute_class_weights(train_dataset)
+    print(f"    Class weights: {class_weights.tolist()}")
     
-    best_val_acc = 0
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, 
+        mode='max',
+        patience=15, 
+        factor=0.5
+    )
+    
+    best_val_f1 = 0
     patience_counter = 0
-    patience_limit = 20
+    patience_limit = 30
+    best_model_state = None
     
     for epoch in range(epochs):
-        train_loss, train_acc = train_gnn(model, train_loader, optimizer, device)
+        train_loss, train_acc = train_gnn(model, train_loader, optimizer, device, class_weights)
         val_results = evaluate_gnn(model, val_loader, device)
         val_loss, val_acc = val_results['loss'], val_results['accuracy']
         
-        scheduler.step(val_loss)
+        # Compute F1 for validation
+        from sklearn.metrics import f1_score
+        val_f1 = f1_score(val_results['labels'], val_results['predictions'], zero_division=0)
         
-        if val_acc > best_val_acc:
-            best_val_acc = val_acc
+        scheduler.step(val_f1)
+        
+        if val_f1 > best_val_f1:
+            best_val_f1 = val_f1
             patience_counter = 0
-            # Save best model
             best_model_state = model.state_dict().copy()
         else:
             patience_counter += 1
         
         if epoch % 10 == 0:
             print(f"Epoch {epoch:03d}: Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, "
-                  f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
+                  f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}, Val F1: {val_f1:.4f}")
         
         if patience_counter >= patience_limit:
             print(f"Early stopping at epoch {epoch}")
             break
     
     # Load best model
-    model.load_state_dict(best_model_state)
+    if best_model_state is not None:
+        model.load_state_dict(best_model_state)
+    
+    print(f"    Best validation F1: {best_val_f1:.4f}")
+    
     return model
